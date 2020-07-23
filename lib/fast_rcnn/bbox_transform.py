@@ -1,3 +1,4 @@
+from __future__ import division
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,6 +6,7 @@
 # Written by Ross Girshick
 # --------------------------------------------------------
 
+from past.utils import old_div
 import numpy as np
 
 def bbox_transform(ex_rois, gt_rois):
@@ -18,10 +20,10 @@ def bbox_transform(ex_rois, gt_rois):
     gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
     gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
 
-    targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
-    targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
-    targets_dw = np.log(gt_widths / ex_widths)
-    targets_dh = np.log(gt_heights / ex_heights)
+    targets_dx = old_div((gt_ctr_x - ex_ctr_x), ex_widths)
+    targets_dy = old_div((gt_ctr_y - ex_ctr_y), ex_heights)
+    targets_dw = np.log(old_div(gt_widths, ex_widths))
+    targets_dh = np.log(old_div(gt_heights, ex_heights))
 
     targets = np.vstack(
         (targets_dx, targets_dy, targets_dw, targets_dh)).transpose()

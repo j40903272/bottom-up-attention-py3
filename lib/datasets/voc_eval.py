@@ -1,12 +1,18 @@
+from __future__ import print_function
+from __future__ import division
 # --------------------------------------------------------
 # Fast/er R-CNN
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Bharath Hariharan
 # --------------------------------------------------------
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from past.utils import old_div
 import xml.etree.ElementTree as ET
 import os
-import cPickle
+import pickle
 import numpy as np
 
 def parse_rec(filename):
@@ -108,16 +114,16 @@ def voc_eval(detpath,
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
-                print 'Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames))
+                print('Reading annotation for {:d}/{:d}'.format(
+                    i + 1, len(imagenames)))
         # save
-        print 'Saving cached annotations to {:s}'.format(cachefile)
+        print('Saving cached annotations to {:s}'.format(cachefile))
         with open(cachefile, 'w') as f:
-            cPickle.dump(recs, f)
+            pickle.dump(recs, f)
     else:
         # load
         with open(cachefile, 'r') as f:
-            recs = cPickle.load(f)
+            recs = pickle.load(f)
 
     # extract gt objects for this class
     class_recs = {}
@@ -174,7 +180,7 @@ def voc_eval(detpath,
                    (BBGT[:, 2] - BBGT[:, 0] + 1.) *
                    (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
 
-            overlaps = inters / uni
+            overlaps = old_div(inters, uni)
             ovmax = np.max(overlaps)
             jmax = np.argmax(overlaps)
 
@@ -194,7 +200,7 @@ def voc_eval(detpath,
     rec = tp / float(npos)
     # avoid divide by zero in case the first detection matches a difficult
     # ground truth
-    prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
+    prec = old_div(tp, np.maximum(tp + fp, np.finfo(np.float64).eps))
     ap = voc_ap(rec, prec, use_07_metric)
 
     return rec, prec, ap

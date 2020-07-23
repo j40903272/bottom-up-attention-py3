@@ -1,3 +1,11 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from builtins import object
+from past.utils import old_div
 __author__ = 'tylin'
 __version__ = '1.0.1'
 # Interface for accessing the Microsoft COCO dataset.
@@ -52,13 +60,13 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
 import numpy as np
 from skimage.draw import polygon
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import copy
 import itertools
-import mask
+from . import mask
 import os
 
-class COCO:
+class COCO(object):
     def __init__(self, annotation_file=None):
         """
         Constructor of Microsoft COCO helper class for reading and visualizing annotations.
@@ -74,16 +82,16 @@ class COCO:
         self.imgs = {}
         self.cats = {}
         if not annotation_file == None:
-            print 'loading annotations into memory...'
+            print('loading annotations into memory...')
             tic = time.time()
             dataset = json.load(open(annotation_file, 'r'))
-            print 'Done (t=%0.2fs)'%(time.time()- tic)
+            print('Done (t=%0.2fs)'%(time.time()- tic))
             self.dataset = dataset
             self.createIndex()
 
     def createIndex(self):
         # create index
-        print 'creating index...'
+        print('creating index...')
         anns = {}
         imgToAnns = {}
         catToImgs = {}
@@ -110,7 +118,7 @@ class COCO:
                 for ann in self.dataset['annotations']:
                     catToImgs[ann['category_id']] += [ann['image_id']]
 
-        print 'index created!'
+        print('index created!')
 
         # create class members
         self.anns = anns
@@ -124,8 +132,8 @@ class COCO:
         Print information about the annotation file.
         :return:
         """
-        for key, value in self.dataset['info'].items():
-            print '%s: %s'%(key, value)
+        for key, value in list(self.dataset['info'].items()):
+            print('%s: %s'%(key, value))
 
     def getAnnIds(self, imgIds=[], catIds=[], areaRng=[], iscrowd=None):
         """
@@ -189,7 +197,7 @@ class COCO:
         catIds = catIds if type(catIds) == list else [catIds]
 
         if len(imgIds) == len(catIds) == 0:
-            ids = self.imgs.keys()
+            ids = list(self.imgs.keys())
         else:
             ids = set(imgIds)
             for i, catId in enumerate(catIds):
@@ -253,7 +261,7 @@ class COCO:
                 if type(ann['segmentation']) == list:
                     # polygon
                     for seg in ann['segmentation']:
-                        poly = np.array(seg).reshape((len(seg)/2, 2))
+                        poly = np.array(seg).reshape((old_div(len(seg),2), 2))
                         polygons.append(Polygon(poly, True,alpha=0.4))
                         color.append(c)
                 else:
@@ -266,7 +274,7 @@ class COCO:
                     m = mask.decode(rle)
                     img = np.ones( (m.shape[0], m.shape[1], 3) )
                     if ann['iscrowd'] == 1:
-                        color_mask = np.array([2.0,166.0,101.0])/255
+                        color_mask = old_div(np.array([2.0,166.0,101.0]),255)
                     if ann['iscrowd'] == 0:
                         color_mask = np.random.random((1, 3)).tolist()[0]
                     for i in range(3):
@@ -276,7 +284,7 @@ class COCO:
             ax.add_collection(p)
         elif datasetType == 'captions':
             for ann in anns:
-                print ann['caption']
+                print(ann['caption'])
 
     def loadRes(self, resFile):
         """
@@ -289,7 +297,7 @@ class COCO:
         # res.dataset['info'] = copy.deepcopy(self.dataset['info'])
         # res.dataset['licenses'] = copy.deepcopy(self.dataset['licenses'])
 
-        print 'Loading and preparing results...     '
+        print('Loading and preparing results...     ')
         tic = time.time()
         anns    = json.load(open(resFile))
         assert type(anns) == list, 'results in not an array of objects'
@@ -320,7 +328,7 @@ class COCO:
                     ann['bbox'] = mask.toBbox([ann['segmentation']])[0]
                 ann['id'] = id+1
                 ann['iscrowd'] = 0
-        print 'DONE (t=%0.2fs)'%(time.time()- tic)
+        print('DONE (t=%0.2fs)'%(time.time()- tic))
 
         res.dataset['annotations'] = anns
         res.createIndex()
@@ -334,10 +342,10 @@ class COCO:
         :return:
         '''
         if tarDir is None:
-            print 'Please specify target directory'
+            print('Please specify target directory')
             return -1
         if len(imgIds) == 0:
-            imgs = self.imgs.values()
+            imgs = list(self.imgs.values())
         else:
             imgs = self.loadImgs(imgIds)
         N = len(imgs)
@@ -347,5 +355,5 @@ class COCO:
             tic = time.time()
             fname = os.path.join(tarDir, img['file_name'])
             if not os.path.exists(fname):
-                urllib.urlretrieve(img['coco_url'], fname)
-            print 'downloaded %d/%d images (t=%.1fs)'%(i, N, time.time()- tic)
+                urllib.request.urlretrieve(img['coco_url'], fname)
+            print('downloaded %d/%d images (t=%.1fs)'%(i, N, time.time()- tic))

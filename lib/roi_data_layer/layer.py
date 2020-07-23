@@ -9,6 +9,7 @@
 
 RoIDataLayer implements a Caffe Python layer.
 """
+from __future__ import print_function
 
 import caffe
 from fast_rcnn.config import cfg
@@ -76,7 +77,7 @@ class RoIDataLayer(caffe.Layer):
             self._prefetch_process.start()
             # Terminate the child process when the parent exists
             def cleanup():
-                print 'Terminating BlobFetcher'
+                print('Terminating BlobFetcher')
                 self._prefetch_process.terminate()
                 self._prefetch_process.join()
             import atexit
@@ -140,14 +141,14 @@ class RoIDataLayer(caffe.Layer):
                 self._name_to_top_map['bbox_outside_weights'] = idx
                 idx += 1
 
-        print 'RoiDataLayer: name_to_top:', self._name_to_top_map
+        print('RoiDataLayer: name_to_top:', self._name_to_top_map)
         assert len(top) == len(self._name_to_top_map)
 
     def forward(self, bottom, top):
         """Get blobs and copy them into this layer's top blob vector."""
         blobs = self._get_next_minibatch()
 
-        for blob_name, blob in blobs.iteritems():
+        for blob_name, blob in blobs.items():
             top_ind = self._name_to_top_map[blob_name]
             shape = blob.shape
             if len(shape) == 1:
@@ -196,7 +197,7 @@ class BlobFetcher(Process):
         return db_inds
 
     def run(self):
-        print 'BlobFetcher started'
+        print('BlobFetcher started')
         while True:
             db_inds = self._get_next_minibatch_inds()
             minibatch_db = [self._roidb[i] for i in db_inds]

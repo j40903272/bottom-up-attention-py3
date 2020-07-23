@@ -1,3 +1,4 @@
+from __future__ import division
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,6 +6,7 @@
 # Written by Ross Girshick
 # --------------------------------------------------------
 
+from past.utils import old_div
 import numpy as np
 
 def py_cpu_nms(dets, thresh):
@@ -30,7 +32,7 @@ def py_cpu_nms(dets, thresh):
         w = np.maximum(0.0, xx2 - xx1 + 1)
         h = np.maximum(0.0, yy2 - yy1 + 1)
         inter = w * h
-        ovr = inter / (areas[i] + areas[order[1:]] - inter)
+        ovr = old_div(inter, (areas[i] + areas[order[1:]] - inter))
 
         inds = np.where(ovr <= thresh)[0]
         order = order[inds + 1]

@@ -1,3 +1,4 @@
+from __future__ import division
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,6 +6,8 @@
 # Written by Ross Girshick
 # --------------------------------------------------------
 
+from builtins import object
+from past.utils import old_div
 import time
 
 class Timer(object):
@@ -25,7 +28,7 @@ class Timer(object):
         self.diff = time.time() - self.start_time
         self.total_time += self.diff
         self.calls += 1
-        self.average_time = self.total_time / self.calls
+        self.average_time = old_div(self.total_time, self.calls)
         if average:
             return self.average_time
         else:

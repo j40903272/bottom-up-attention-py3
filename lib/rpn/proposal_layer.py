@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 # --------------------------------------------------------
 # Faster R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,11 +7,12 @@
 # Written by Ross Girshick and Sean Bell
 # --------------------------------------------------------
 
+from builtins import str
 import caffe
 import numpy as np
 import yaml
 from fast_rcnn.config import cfg
-from generate_anchors import generate_anchors
+from .generate_anchors import generate_anchors
 from fast_rcnn.bbox_transform import bbox_transform_inv, clip_boxes
 from fast_rcnn.nms_wrapper import nms
 
@@ -32,9 +35,9 @@ class ProposalLayer(caffe.Layer):
         self._num_anchors = self._anchors.shape[0]
 
         if DEBUG:
-            print 'feat_stride: {}'.format(self._feat_stride)
-            print 'anchors:'
-            print self._anchors
+            print('feat_stride: {}'.format(self._feat_stride))
+            print('anchors:')
+            print(self._anchors)
 
         # rois blob: holds R regions of interest, each is a 5-tuple
         # (n, x1, y1, x2, y2) specifying an image batch index n and a
@@ -75,14 +78,14 @@ class ProposalLayer(caffe.Layer):
         im_info = bottom[2].data[0, :]
 
         if DEBUG:
-            print 'im_size: ({}, {})'.format(im_info[0], im_info[1])
-            print 'scale: {}'.format(im_info[2])
+            print('im_size: ({}, {})'.format(im_info[0], im_info[1]))
+            print('scale: {}'.format(im_info[2]))
 
         # 1. Generate proposals from bbox deltas and shifted anchors
         height, width = scores.shape[-2:]
 
         if DEBUG:
-            print 'score map size: {}'.format(scores.shape)
+            print('score map size: {}'.format(scores.shape))
 
         # Enumerate all shifts
         shift_x = np.arange(0, width) * self._feat_stride
@@ -160,14 +163,14 @@ class ProposalLayer(caffe.Layer):
         top[0].reshape(*(blob.shape))
         top[0].data[...] = blob
         if DEBUG_SHAPE:
-            print 'ProposalLayer top[0] size: {}'.format(top[0].data.shape)
+            print('ProposalLayer top[0] size: {}'.format(top[0].data.shape))
 
         # [Optional] output scores blob
         if len(top) > 1:
             top[1].reshape(*(scores.shape))
             top[1].data[...] = scores
             if DEBUG_SHAPE:
-                print 'ProposalLayer top[0] size: {}'.format(top[0].data.shape)
+                print('ProposalLayer top[0] size: {}'.format(top[0].data.shape))
 
     def backward(self, top, propagate_down, bottom):
         """This layer does not propagate gradients."""

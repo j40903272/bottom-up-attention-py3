@@ -1,3 +1,4 @@
+from __future__ import print_function
 # --------------------------------------------------------
 # Fast R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,6 +6,11 @@
 # Written by Ross Girshick
 # --------------------------------------------------------
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
 import datasets
 import datasets.imagenet
 import os, sys
@@ -14,7 +20,7 @@ import numpy as np
 import scipy.sparse
 import scipy.io as sio
 import utils.cython_bbox
-import cPickle
+import pickle
 import subprocess
 
 class imagenet(imdb):
@@ -31,19 +37,19 @@ class imagenet(imdb):
         self._classes = ('__background__',)
         self._wnid = (0,)
 
-        for i in xrange(200):
+        for i in range(200):
             self._classes_image = self._classes_image + (synsets_image['synsets'][0][i][2][0],)
             self._wnid_image = self._wnid_image + (synsets_image['synsets'][0][i][1][0],)
 
-        for i in xrange(30):
+        for i in range(30):
             self._classes = self._classes + (synsets_video['synsets'][0][i][2][0],)
             self._wnid = self._wnid + (synsets_video['synsets'][0][i][1][0],)
 
-        self._wnid_to_ind_image = dict(zip(self._wnid_image, xrange(201)))
-        self._class_to_ind_image = dict(zip(self._classes_image, xrange(201)))
+        self._wnid_to_ind_image = dict(list(zip(self._wnid_image, range(201))))
+        self._class_to_ind_image = dict(list(zip(self._classes_image, range(201))))
 
-        self._wnid_to_ind = dict(zip(self._wnid, xrange(31)))
-        self._class_to_ind = dict(zip(self._classes, xrange(31)))
+        self._wnid_to_ind = dict(list(zip(self._wnid, range(31))))
+        self._class_to_ind = dict(list(zip(self._classes, range(31))))
 
         #check for valid intersection between video and image classes
         self._valid_image_flag = [0]*201
@@ -149,15 +155,15 @@ class imagenet(imdb):
         cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
-                roidb = cPickle.load(fid)
-            print '{} gt roidb loaded from {}'.format(self.name, cache_file)
+                roidb = pickle.load(fid)
+            print('{} gt roidb loaded from {}'.format(self.name, cache_file))
             return roidb
 
         gt_roidb = [self._load_imagenet_annotation(index)
                     for index in self.image_index]
         with open(cache_file, 'wb') as fid:
-            cPickle.dump(gt_roidb, fid, cPickle.HIGHEST_PROTOCOL)
-        print 'wrote gt roidb to {}'.format(cache_file)
+            pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
+        print('wrote gt roidb to {}'.format(cache_file))
 
         return gt_roidb
 

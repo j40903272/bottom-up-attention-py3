@@ -1,4 +1,7 @@
+from __future__ import division
 
+from builtins import range
+from past.utils import old_div
 import caffe
 import yaml
 import numpy as np
@@ -31,7 +34,7 @@ class HeatmapLayer(caffe.Layer):
         # (i.e., rpn.proposal_layer.ProposalLayer), or any other source
         rois = bottom[0].data
         rois = rois.reshape(rois.shape[0], rois.shape[1])
-        rois = rois[:,1:]*self._out_size/image_size
+        rois = old_div(rois[:,1:]*self._out_size,image_size)
         # This will fill occupied pixels in an approximate (dilated) fashion
         rois_int = np.round(np.hstack((
             np.floor(rois[:,[0]]), 

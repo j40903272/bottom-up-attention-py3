@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import division
 # --------------------------------------------------------
 # Faster R-CNN
 # Copyright (c) 2015 Microsoft
@@ -5,11 +8,13 @@
 # Written by Ross Girshick
 # --------------------------------------------------------
 
+from builtins import range
+from past.utils import old_div
 from fast_rcnn.config import cfg
 from fast_rcnn.train import filter_roidb
 from utils.blob import im_list_to_blob
 from utils.timer import Timer
-from generate_anchors import generate_anchors
+from .generate_anchors import generate_anchors
 from utils.cython_bbox import bbox_overlaps
 from fast_rcnn.bbox_transform import bbox_transform
 import numpy as np
@@ -96,7 +101,7 @@ def im_proposals(net, im):
             im_info=blobs['im_info'].astype(np.float32, copy=False))
 
     scale = blobs['im_info'][0, 2]
-    boxes = blobs_out['rois'][:, 1:].copy() / scale
+    boxes = old_div(blobs_out['rois'][:, 1:].copy(), scale)
     scores = blobs_out['scores'].copy()
     return boxes, scores
 
@@ -104,14 +109,14 @@ def imdb_proposals(net, imdb):
     """Generate RPN proposals on all images in an imdb."""
 
     _t = Timer()
-    imdb_boxes = [[] for _ in xrange(imdb.num_images)]
-    for i in xrange(imdb.num_images):
+    imdb_boxes = [[] for _ in range(imdb.num_images)]
+    for i in range(imdb.num_images):
         im = cv2.imread(imdb.image_path_at(i))
         _t.tic()
         imdb_boxes[i], scores = im_proposals(net, im)
         _t.toc()
-        print 'im_proposals: {:d}/{:d} {:.3f}s' \
-              .format(i + 1, imdb.num_images, _t.average_time)
+        print('im_proposals: {:d}/{:d} {:.3f}s' \
+              .format(i + 1, imdb.num_images, _t.average_time))
         if 0:
             dets = np.hstack((imdb_boxes[i], scores))
             # from IPython import embed; embed()
@@ -124,7 +129,7 @@ def imdb_proposals(net, imdb):
 def imdb_rpn_compute_stats(net, imdb, anchor_scales=(8,16,32),
                            feature_stride=16):
     raw_anchors = generate_anchors(scales=np.array(anchor_scales))
-    print raw_anchors.shape
+    print(raw_anchors.shape)
     sums = 0
     squred_sums = 0
     counts = 0
@@ -132,7 +137,7 @@ def imdb_rpn_compute_stats(net, imdb, anchor_scales=(8,16,32),
     # Compute a map of input image size and output feature map blob
     map_w = {}
     map_h = {}
-    for i in xrange(50, cfg.TRAIN.MAX_SIZE + 10):
+    for i in range(50, cfg.TRAIN.MAX_SIZE + 10):
         blobs = {
             'data': np.zeros((1, 3, i, i)),
             'im_info': np.asarray([[i, i, 1.0]])
@@ -146,9 +151,9 @@ def imdb_rpn_compute_stats(net, imdb, anchor_scales=(8,16,32),
         map_w[i] = width
         map_h[i] = height
 
-    for i in xrange(len(roidb)):
+    for i in range(len(roidb)):
         if not i % 5000:
-            print 'computing %d/%d' % (i, imdb.num_images)
+            print('computing %d/%d' % (i, imdb.num_images))
         im = cv2.imread(roidb[i]['image'])
         im_data, im_info = _get_image_blob(im)
         gt_boxes = roidb[i]['boxes']
@@ -206,8 +211,8 @@ def imdb_rpn_compute_stats(net, imdb, anchor_scales=(8,16,32),
         squred_sums += (targets ** 2).sum(axis=0)
         counts += targets.shape[0]
 
-    means = sums / counts
-    stds = np.sqrt(squred_sums / counts - means ** 2)
-    print means
-    print stds
+    means = old_div(sums, counts)
+    stds = np.sqrt(old_div(squred_sums, counts) - means ** 2)
+    print(means)
+    print(stds)
     return means, stds

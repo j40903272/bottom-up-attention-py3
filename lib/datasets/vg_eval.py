@@ -1,14 +1,22 @@
+from __future__ import absolute_import
+from __future__ import division
 # --------------------------------------------------------
 # Fast/er R-CNN
 # Licensed under The MIT License [see LICENSE for details]
 # Written by Bharath Hariharan
 # --------------------------------------------------------
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import xml.etree.ElementTree as ET
 import os
-import cPickle
+import pickle
 import numpy as np
-from voc_eval import voc_ap
+from .voc_eval import voc_ap
 
 
 
@@ -99,7 +107,7 @@ def vg_eval( detpath,
                    (BBGT[:, 2] - BBGT[:, 0] + 1.) *
                    (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
 
-            overlaps = inters / uni
+            overlaps = old_div(inters, uni)
             ovmax = np.max(overlaps)
             jmax = np.argmax(overlaps)
 
@@ -119,7 +127,7 @@ def vg_eval( detpath,
     rec = tp / float(npos)
     # avoid divide by zero in case the first detection matches a difficult
     # ground truth
-    prec = tp / np.maximum(tp + fp, np.finfo(np.float64).eps)
+    prec = old_div(tp, np.maximum(tp + fp, np.finfo(np.float64).eps))
     ap = voc_ap(rec, prec, use_07_metric)
     
     return rec, prec, ap, sorted_scores, npos
