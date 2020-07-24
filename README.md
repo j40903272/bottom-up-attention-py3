@@ -22,6 +22,9 @@ Note: This repo only includes code for training the bottom-up attention / Faster
 1. Install the requirements for `Caffe` and `pycaffe` (see: [Caffe installation instructions](http://caffe.berkeleyvision.org/installation.html))
 
   **Note:** Only requirments for caffe not caffe itself !
+  
+  **Note:** Install ncll !
+  
   **Note:** Caffe *must* be built with support for Python layers and NCCL!
 
   ```make
