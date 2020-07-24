@@ -23,7 +23,7 @@ Note: This repo only includes code for training the bottom-up attention / Faster
 
   **Note:** Only requirments for caffe not caffe itself !
   
-  **Note:** Install ncll !
+  **Note:** Install nccl !
   
   **Note:** Caffe *must* be built with support for Python layers and NCCL!
 
@@ -34,6 +34,23 @@ Note: This repo only includes code for training the bottom-up attention / Faster
   # Unrelatedly, it's also recommended that you use CUDNN
   USE_CUDNN := 1
   ```
+  Or follow below instruction
+  ```
+  sudo apt install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libopenblas-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libhdf5-dev apt install libatlas-base-dev
+  sudo apt install --no-install-recommends libboost-all-dev
+  
+  # locate libaray
+  # dpkg -L libhdf5-dev
+ 
+  ln -s /usr/lib/x86_64-linux-gnu/libboost_python35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so 
+  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial.so /usr/lib/x86_64-linux-gnu/libhdf5.so
+  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so /usr/lib/x86_64-linux-gnu/libhdf5_hl.so
+  
+  # modify Makefile.config to your python version
+  libbost_python3 --> libbost_python-py35
+  /usr/lib/python3.5/dist-packages/numpy/core/include --> /usr/local/lib/python3.5/dist-packages/numpy/core/include
+  ```
+  
 2. Python packages you might not have: `cython`, `python-opencv`, `easydict`
 3. Nvidia's NCCL library which is used for multi-GPU training https://github.com/NVIDIA/nccl
 
