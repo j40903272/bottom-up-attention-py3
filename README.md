@@ -15,73 +15,6 @@ Note: This repo only includes code for training the bottom-up attention / Faster
 
 
 
-### Requirements: software
-
-0. **`Important`** Please install the version of caffe contained within this repository.
-
-1. Install the requirements for `Caffe` and `pycaffe` (see: [Caffe installation instructions](http://caffe.berkeleyvision.org/installation.html))
-
-  **Note:** Only requirments for caffe not caffe itself !
-  
-  **Note:** Install nccl !
-  
-  **Note:** Caffe *must* be built with support for Python layers and NCCL!
-
-  ```make
-  # In your Makefile.config, make sure to have these lines uncommented
-  WITH_PYTHON_LAYER := 1
-  USE_NCCL := 1
-  # Unrelatedly, it's also recommended that you use CUDNN
-  USE_CUDNN := 1
-  ```
-  Or follow below instruction
-  ```
-  sudo apt install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libopenblas-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libhdf5-dev apt install libatlas-base-dev
-  sudo apt install --no-install-recommends libboost-all-dev
-  
-  # locate libaray
-  # dpkg -L libhdf5-dev
- 
-  ln -s /usr/lib/x86_64-linux-gnu/libboost_python35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so 
-  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial.so /usr/lib/x86_64-linux-gnu/libhdf5.so
-  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so /usr/lib/x86_64-linux-gnu/libhdf5_hl.so
-  
-  # modify Makefile.config to your python version
-  libbost_python3 --> libbost_python-py35
-  /usr/lib/python3.5/dist-packages/numpy/core/include --> /usr/local/lib/python3.5/dist-packages/numpy/core/include
-  ```
-  
-2. Python packages you might not have: `cython`, `python-opencv`, `easydict`
-3. Nvidia's NCCL library which is used for multi-GPU training https://github.com/NVIDIA/nccl
-
-### Requirements: hardware
-
-Any NVIDIA GPU with 12GB or larger memory is OK for training Faster R-CNN ResNet-101.
-
-### Installation
-1. Clone the repository
-  ```Shell
-  git clone https://github.com/peteanderson80/bottom-up-attention/
-  ```
-
-3. Build the Cython modules
-    ```Shell
-    cd $REPO_ROOT/lib
-    make
-    ```
-
-4. Build Caffe and pycaffe
-    ```Shell
-    cd $REPO_ROOT/caffe
-    # Now follow the Caffe installation instructions here:
-    #   http://caffe.berkeleyvision.org/installation.html
-
-    # If you're experienced with Caffe and have all of the requirements installed
-    # and your Makefile.config in place, then simply do:
-    make -j8 && make pycaffe
-   ```
-
-
 
 ### Reference
 If you use our code or features, please cite our paper:
@@ -137,18 +70,96 @@ gsutil -u [PROJECT_ID] cp gs://bottom-up-attention/test2015_36.zip [OBJECT_DESTI
 
 Both sets of features can be recreated by using `tools/genenerate_tsv.py` with the appropriate pretrained model and with MIN_BOXES/MAX_BOXES set to either 10/100 or 36/36 respectively - refer [Demo](#demo). 
 
-### Contents
-1. [Requirements: software](#requirements-software)
-2. [Requirements: hardware](#requirements-hardware)
+# Contents
+1. [Requirements: hardware](#requirements-hardware)
+2. [Requirements: software](#requirements-software)
 3. [Basic installation](#installation)
 4. [Demo](#demo)
 5. [Training](#training)
 6. [Testing](#testing)
 
 
+### Requirements: hardware
+
+Any NVIDIA GPU with 12GB or larger memory is OK for training Faster R-CNN ResNet-101.
+
+
+### Requirements: software
+
+0. **`Important`** Please install the version of caffe contained within this repository.
+
+1. Install the requirements for `Caffe` and `pycaffe` (see: [Caffe installation instructions](http://caffe.berkeleyvision.org/installation.html))
+
+  **Note:** Only requirments for caffe not caffe itself !
+  
+  **Note:** Install nccl !
+  
+  **Note:** Caffe *must* be built with support for Python layers and NCCL!
+
+  ```make
+  # In your Makefile.config, make sure to have these lines uncommented
+  WITH_PYTHON_LAYER := 1
+  USE_NCCL := 1
+  # Unrelatedly, it's also recommended that you use CUDNN
+  USE_CUDNN := 1
+  ```
+  Or follow below instruction
+  ```
+  apt install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libopenblas-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libhdf5-dev apt install libatlas-base-dev
+  apt install --no-install-recommends libboost-all-dev
+  apt install libnccl2 libnccl-dev
+  
+  # locate libaray
+  # dpkg -L libhdf5-dev
+ 
+  ln -s /usr/lib/x86_64-linux-gnu/libboost_python35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so 
+  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial.so /usr/lib/x86_64-linux-gnu/libhdf5.so
+  ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so /usr/lib/x86_64-linux-gnu/libhdf5_hl.so
+  
+  # modify Makefile.config to your python version
+  libbost_python3 --> libbost_python-py35
+  /usr/lib/python3.5/dist-packages/numpy/core/include --> /usr/local/lib/python3.5/dist-packages/numpy/core/include
+  ```
+  
+2. Python packages you might not have: `cython`, `python-opencv`, `easydict`
+  ```
+  python3 -m pip install easydict Cython scikit-image
+  ```
+3. Nvidia's NCCL library which is used for multi-GPU training https://github.com/NVIDIA/nccl
+
+### Installation
+1. Clone the repository
+  ```Shell
+  git clone https://github.com/peteanderson80/bottom-up-attention/
+  ```
+
+3. Build the Cython modules
+    ```Shell
+    cd $REPO_ROOT/lib
+    make
+    ```
+
+4. Build Caffe and pycaffe
+    ```Shell
+    cd $REPO_ROOT/caffe
+    # Now follow the Caffe installation instructions here:
+    #   http://caffe.berkeleyvision.org/installation.html
+
+    # If you're experienced with Caffe and have all of the requirements installed
+    # and your Makefile.config in place, then simply do:
+    make -j8 && make pycaffe
+   ```
+
+
+
 ### Demo
 
 1.  Download [pretrained model](https://www.dropbox.com/s/5xethd2nxa8qrnq/resnet101_faster_rcnn_final.caffemodel?dl=1), and put it under `data\faster_rcnn_models`.
+  ```
+  wget https://www.dropbox.com/s/5xethd2nxa8qrnq/resnet101_faster_rcnn_final.caffemodel?dl=1
+  mkdir -p data/faster_rcnn_models
+  mv resnet101_faster_rcnn_final.caffemodel?dl=1 ./data/faster_rcnn_models/resnet101_faster_rcnn_final.caffemodel
+  ```
    
 2.  Run `tools/demo.ipynb` to show object and attribute detections on demo images.
 
